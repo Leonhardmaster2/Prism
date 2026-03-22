@@ -107,6 +107,10 @@ final class EditorBridge: NSObject, WKScriptMessageHandler {
             guard let videoId = data["videoId"] as? String else { return }
             fetchYouTubeMeta(videoId: videoId)
 
+        case "fetchBookmarkMeta":
+            guard let urlString = data["url"] as? String else { return }
+            fetchBookmarkMeta(urlString: urlString)
+
         case "openURL":
             if let urlString = data["url"] as? String, let url = URL(string: urlString) {
                 #if os(macOS)
@@ -254,6 +258,39 @@ final class EditorBridge: NSObject, WKScriptMessageHandler {
                 )
             }
         }.resume()
+    }
+
+    // MARK: - Bookmark oEmbed
+
+    private func fetchBookmarkMeta(urlString: String) {
+        print("[BM] Fetching metadata for \(urlString)")
+        BookmarkMetaFetcher.fetch(urlString: urlString) { [weak self] meta in
+            let escape: (String?) -> String = { str in
+                guard let s = str else { return "''" }
+                let escaped = s
+                    .replacingOccurrences(of: "\\", with: "\\\\")
+                    .replacingOccurrences(of: "'", with: "\\'")
+                    .replacingOccurrences(of: "\n", with: " ")
+                    .replacingOccurrences(of: "\r", with: "")
+                return "'\(escaped)'"
+            }
+
+            let escapedUrl = urlString
+                .replacingOccurrences(of: "\\", with: "\\\\")
+                .replacingOccurrences(of: "'", with: "\\'")
+
+            let js = """
+            window.setBookmarkMeta('\(escapedUrl)', { \
+            title: \(escape(meta.title)), \
+            description: \(escape(meta.description)), \
+            image: \(escape(meta.imageURL)), \
+            favicon: \(escape(meta.faviconURL)), \
+            siteName: \(escape(meta.siteName)) \
+            })
+            """
+
+            self?.webView?.evaluateJavaScript(js, completionHandler: nil)
+        }
     }
 
     func insertLink(url: String) {

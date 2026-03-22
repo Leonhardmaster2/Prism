@@ -38,7 +38,7 @@ var hasNotifiedReady = false;
 var globalMuteUntil = 0;
 function sendToSwift(action, data) {
     // Allow certain actions through always; mute state/content updates after commands
-    var alwaysAllow = (action === 'ready' || action === 'fetchVideoMeta' || action === 'openURL' || action === 'jslog' || action === 'save' || action === 'requestLink');
+    var alwaysAllow = (action === 'ready' || action === 'fetchVideoMeta' || action === 'fetchBookmarkMeta' || action === 'openURL' || action === 'jslog' || action === 'save' || action === 'requestLink');
     if (!alwaysAllow && Date.now() < globalMuteUntil) return;
     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.prism) {
         window.webkit.messageHandlers.prism.postMessage(JSON.stringify({ action, data }));
@@ -263,7 +263,8 @@ var slashMenuPluginFixed = $prose(function(ctx) {
             { label: 'Inline Math', desc: 'Inline equation', command: 'mathInline', icon: 'fx' },
             { label: 'Chemistry', desc: 'Chemical formula', command: 'chemistry', icon: '\u2697' },
             { label: 'YouTube', desc: 'Embed video', command: 'insertYouTube', icon: '\u25B6' },
-            { label: 'Flashcard', desc: 'Flip card', command: 'insertFlashcard', icon: '\u2726' }
+            { label: 'Flashcard', desc: 'Flip card', command: 'insertFlashcard', icon: '\u2726' },
+            { label: 'Bookmark', desc: 'Link preview', command: 'insertBookmark', icon: '\u2197' }
         ],
         filteredItems: [],
         selectedIndex: 0,
@@ -1402,6 +1403,23 @@ var unifiedPastePlugin = $prose(function(ctx) {
                     }
                 }
 
+                // Priority 1.5: Single-line non-YouTube URL on empty paragraph → bookmark
+                if (trimmed.indexOf('\n') === -1 && trimmed.length < 500 && /^https?:\/\/[^\s]+$/.test(trimmed)) {
+                    var $pos = view.state.selection.$from;
+                    var parentEmpty = $pos.parent.content.size === 0;
+                    if (parentEmpty) {
+                        var bmType = view.state.schema.nodes.bookmark;
+                        if (bmType) {
+                            globalMuteUntil = Date.now() + 500;
+                            var bmNode = bmType.create({ url: trimmed });
+                            var bmTr = view.state.tr.replaceWith($pos.before(), $pos.after(), bmNode);
+                            view.dispatch(bmTr);
+                            sendToSwift('fetchBookmarkMeta', { url: trimmed });
+                            return true;
+                        }
+                    }
+                }
+
                 // Priority 2: Multi-line content → use loadContent for proper markdown parsing
                 // ProseMirror's default paste inserts as plain text — it won't parse markdown
                 // syntax like $math$, tables, or code blocks. We need Milkdown's parser.
@@ -1781,6 +1799,33 @@ window.setVideoMeta = function(videoId, meta) {
     }
 };
 
+// ─── Bookmark metadata callback from Swift ───────────
+window.setBookmarkMeta = function(url, meta) {
+    if (!editorInstance) return;
+    try {
+        var view = editorInstance.ctx.get(editorViewCtx);
+        var tr = view.state.tr;
+        var changed = false;
+        view.state.doc.descendants(function(node, pos) {
+            if (node.type.name === 'bookmark' && node.attrs.url === url) {
+                tr.setNodeMarkup(pos, null, {
+                    url: url,
+                    title: meta.title || '',
+                    description: meta.description || '',
+                    image: meta.image || '',
+                    favicon: meta.favicon || '',
+                    siteName: meta.siteName || ''
+                });
+                changed = true;
+                return false;
+            }
+        });
+        if (changed) view.dispatch(tr);
+    } catch(e) {
+        console.warn('[BM] setBookmarkMeta error:', e.message);
+    }
+};
+
 // YouTube paste handler removed — merged into unifiedPastePlugin
 
 // ─── YouTube auto-detect (appendTransaction) ─────────
@@ -1980,6 +2025,92 @@ var remarkFlashcard = $remark('remarkFlashcard', function() {
     return remarkFlashcardPlugin;
 });
 
+// ─── Bookmark remark plugin ──────────────────────────
+
+function remarkBookmarkPlugin() {
+    return function(tree) {
+        var children = tree.children;
+        if (!children) return;
+        var newChildren = [];
+        var i = 0;
+        while (i < children.length) {
+            var node = children[i];
+
+            if (node.type === 'paragraph' && node.children && node.children.length > 0) {
+                var fullText = mdastParaText(node).trim();
+
+                if (fullText.indexOf(':::bookmark') === 0) {
+                    // Collect key-value lines until closing :::
+                    var attrs = {};
+                    var firstLineRest = fullText.slice(':::bookmark'.length).trim();
+                    if (firstLineRest) {
+                        parseBookmarkLine(firstLineRest, attrs);
+                    }
+
+                    var foundEnd = false;
+                    var j = i + 1;
+                    while (j < children.length) {
+                        var c2 = children[j];
+                        if (c2.type === 'paragraph' && c2.children) {
+                            var txt = mdastParaText(c2).trim();
+                            if (txt === ':::') {
+                                foundEnd = true;
+                                break;
+                            }
+                            if (txt.endsWith(' :::') || txt.endsWith(':::')) {
+                                var content = txt.replace(/\s*:::$/, '').trim();
+                                if (content) parseBookmarkLine(content, attrs);
+                                foundEnd = true;
+                                break;
+                            }
+                            parseBookmarkLine(txt, attrs);
+                        }
+                        j++;
+                    }
+
+                    if (foundEnd && attrs.url) {
+                        newChildren.push({
+                            type: 'bookmark',
+                            url: attrs.url || '',
+                            title: attrs.title || '',
+                            description: attrs.description || '',
+                            image: attrs.image || '',
+                            favicon: attrs.favicon || '',
+                            siteName: attrs.siteName || ''
+                        });
+                        i = j + 1;
+                        continue;
+                    }
+                }
+            }
+
+            newChildren.push(node);
+            i++;
+        }
+        tree.children = newChildren;
+    };
+}
+
+function parseBookmarkLine(line, attrs) {
+    // Split on first ": " only (handles colons in titles/URLs)
+    var idx = line.indexOf(': ');
+    if (idx < 0) {
+        // Try splitting on just ":" for cases like "url:https://..."
+        idx = line.indexOf(':');
+        if (idx < 0) return;
+    }
+    var key = line.slice(0, idx).trim();
+    var val = line.slice(idx + (line.charAt(idx + 1) === ' ' ? 2 : 1)).trim();
+    if (key && val) {
+        // Map siteName from camelCase
+        attrs[key] = val;
+    }
+}
+
+var remarkBookmark = $remark('remarkBookmark', function() {
+    return remarkBookmarkPlugin;
+});
+
 // ─── Flashcard node schema ────────────────────────────
 
 var flashcardSchema = $nodeSchema('flashcard', function() {
@@ -2032,6 +2163,302 @@ var flashcardSchema = $nodeSchema('flashcard', function() {
             }
         }
     };
+});
+
+// ─── Bookmark node schema ─────────────────────────────
+
+var bookmarkSchema = $nodeSchema('bookmark', function() {
+    return {
+        group: 'block',
+        atom: true,
+        isolating: true,
+        attrs: {
+            url: { default: '' },
+            title: { default: '' },
+            description: { default: '' },
+            image: { default: '' },
+            favicon: { default: '' },
+            siteName: { default: '' }
+        },
+        parseDOM: [{
+            tag: 'div[data-type="bookmark"]',
+            getAttrs: function(dom) {
+                return {
+                    url: dom.getAttribute('data-url') || '',
+                    title: dom.getAttribute('data-title') || '',
+                    description: dom.getAttribute('data-description') || '',
+                    image: dom.getAttribute('data-image') || '',
+                    favicon: dom.getAttribute('data-favicon') || '',
+                    siteName: dom.getAttribute('data-site-name') || ''
+                };
+            }
+        }],
+        toDOM: function(node) {
+            return ['div', {
+                'data-type': 'bookmark',
+                'data-url': node.attrs.url,
+                'data-title': node.attrs.title,
+                'data-description': node.attrs.description,
+                'data-image': node.attrs.image,
+                'data-favicon': node.attrs.favicon,
+                'data-site-name': node.attrs.siteName,
+                'class': 'bookmark-block'
+            }];
+        },
+        parseMarkdown: {
+            match: function(node) { return node.type === 'bookmark'; },
+            runner: function(state, node, type) {
+                state.addNode(type, {
+                    url: node.url || '',
+                    title: node.title || '',
+                    description: node.description || '',
+                    image: node.image || '',
+                    favicon: node.favicon || '',
+                    siteName: node.siteName || ''
+                });
+            }
+        },
+        toMarkdown: {
+            match: function(node) { return node.type.name === 'bookmark'; },
+            runner: function(state, node) {
+                var lines = ':::bookmark\nurl: ' + node.attrs.url;
+                if (node.attrs.title) lines += '\ntitle: ' + node.attrs.title.replace(/\n/g, ' ');
+                if (node.attrs.description) lines += '\ndescription: ' + node.attrs.description.replace(/\n/g, ' ');
+                if (node.attrs.image) lines += '\nimage: ' + node.attrs.image;
+                if (node.attrs.favicon) lines += '\nfavicon: ' + node.attrs.favicon;
+                if (node.attrs.siteName) lines += '\nsiteName: ' + node.attrs.siteName;
+                lines += '\n:::';
+                state.addNode('html', undefined, lines);
+            }
+        }
+    };
+});
+
+// ─── Bookmark node view ──────────────────────────────
+
+function createBookmarkNodeView(node, view, getPos) {
+    var currentAttrs = Object.assign({}, node.attrs);
+
+    // Outer wrapper
+    var dom = document.createElement('div');
+    dom.className = 'bookmark-block';
+    dom.setAttribute('contenteditable', 'false');
+    dom.setAttribute('data-type', 'bookmark');
+
+    function clearChildren(el) {
+        while (el.firstChild) el.removeChild(el.firstChild);
+    }
+
+    function render() {
+        clearChildren(dom);
+        var isLoading = !currentAttrs.title;
+
+        if (isLoading) {
+            dom.classList.add('bookmark-loading');
+            // Skeleton
+            var skel = document.createElement('div');
+            skel.className = 'bookmark-card';
+            var skelText = document.createElement('div');
+            skelText.className = 'bookmark-card-text';
+            var widths = [30, 80, 55];
+            for (var s = 0; s < 3; s++) {
+                var line = document.createElement('div');
+                line.className = 'bookmark-skeleton-line';
+                line.style.width = widths[s] + '%';
+                skelText.appendChild(line);
+            }
+            skel.appendChild(skelText);
+            var skelImg = document.createElement('div');
+            skelImg.className = 'bookmark-image bookmark-skeleton-img';
+            skel.appendChild(skelImg);
+            dom.appendChild(skel);
+        } else {
+            dom.classList.remove('bookmark-loading');
+            var card = document.createElement('div');
+            card.className = 'bookmark-card';
+
+            // Text side
+            var textDiv = document.createElement('div');
+            textDiv.className = 'bookmark-card-text';
+
+            // Meta row (favicon + domain)
+            var metaDiv = document.createElement('div');
+            metaDiv.className = 'bookmark-meta';
+            if (currentAttrs.favicon) {
+                var fav = document.createElement('img');
+                fav.className = 'bookmark-favicon';
+                fav.src = currentAttrs.favicon;
+                fav.onerror = function() { fav.style.display = 'none'; };
+                metaDiv.appendChild(fav);
+            }
+            var domain = document.createElement('span');
+            domain.className = 'bookmark-domain';
+            domain.textContent = (currentAttrs.siteName || extractDomain(currentAttrs.url)).toUpperCase();
+            metaDiv.appendChild(domain);
+            textDiv.appendChild(metaDiv);
+
+            // Title
+            var title = document.createElement('div');
+            title.className = 'bookmark-title';
+            title.textContent = currentAttrs.title || currentAttrs.url;
+            textDiv.appendChild(title);
+
+            // Description
+            if (currentAttrs.description) {
+                var desc = document.createElement('div');
+                desc.className = 'bookmark-description';
+                desc.textContent = currentAttrs.description;
+                textDiv.appendChild(desc);
+            }
+
+            // URL display
+            var urlLine = document.createElement('div');
+            urlLine.className = 'bookmark-url';
+            urlLine.textContent = currentAttrs.url;
+            textDiv.appendChild(urlLine);
+
+            card.appendChild(textDiv);
+
+            // Image side
+            if (currentAttrs.image) {
+                var imgDiv = document.createElement('div');
+                imgDiv.className = 'bookmark-image';
+                var img = document.createElement('img');
+                img.src = currentAttrs.image;
+                img.onerror = function() { imgDiv.style.display = 'none'; };
+                imgDiv.appendChild(img);
+                card.appendChild(imgDiv);
+            }
+
+            dom.appendChild(card);
+        }
+
+        // Click → open URL
+        dom.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (currentAttrs.url) {
+                sendToSwift('openURL', { url: currentAttrs.url });
+            }
+        };
+
+        // Context menu
+        dom.oncontextmenu = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showBookmarkContextMenu(e, currentAttrs.url, view, getPos);
+        };
+    }
+
+    // If no title, request metadata from Swift
+    if (!currentAttrs.title && currentAttrs.url) {
+        sendToSwift('fetchBookmarkMeta', { url: currentAttrs.url });
+    }
+
+    render();
+
+    return {
+        dom: dom,
+        update: function(newNode) {
+            if (newNode.type.name !== 'bookmark') return false;
+            currentAttrs = Object.assign({}, newNode.attrs);
+            render();
+            return true;
+        },
+        stopEvent: function() { return true; },
+        ignoreMutation: function() { return true; },
+        destroy: function() {
+            dom.onclick = null;
+            dom.oncontextmenu = null;
+        }
+    };
+}
+
+function extractDomain(url) {
+    try {
+        var u = new URL(url);
+        return u.hostname.replace(/^www\./, '');
+    } catch(e) {
+        return url;
+    }
+}
+
+function showBookmarkContextMenu(event, url, view, getPos) {
+    // Remove existing menu
+    var existing = document.querySelector('.bookmark-context-menu');
+    if (existing) existing.remove();
+
+    var menu = document.createElement('div');
+    menu.className = 'bookmark-context-menu';
+    menu.style.position = 'fixed';
+    menu.style.left = event.clientX + 'px';
+    menu.style.top = event.clientY + 'px';
+    menu.style.zIndex = '9999';
+
+    var items = [
+        { label: 'Open in Browser', action: function() { sendToSwift('openURL', { url: url }); } },
+        { label: 'Copy URL', action: function() { navigator.clipboard.writeText(url); } },
+        null, // separator
+        { label: 'Revert to URL', action: function() {
+            var pos = getPos();
+            if (typeof pos === 'number') {
+                var tr = view.state.tr;
+                var textNode = view.state.schema.text(url);
+                var para = view.state.schema.nodes.paragraph.create(null, textNode);
+                tr.replaceWith(pos, pos + 1, para);
+                view.dispatch(tr);
+            }
+        }},
+        { label: 'Delete', action: function() {
+            var pos = getPos();
+            if (typeof pos === 'number') {
+                view.dispatch(view.state.tr.delete(pos, pos + 1));
+            }
+        }}
+    ];
+
+    items.forEach(function(item) {
+        if (!item) {
+            var sep = document.createElement('div');
+            sep.className = 'bookmark-ctx-separator';
+            menu.appendChild(sep);
+            return;
+        }
+        var el = document.createElement('div');
+        el.className = 'bookmark-ctx-item';
+        el.textContent = item.label;
+        el.onclick = function(e) {
+            e.stopPropagation();
+            item.action();
+            menu.remove();
+        };
+        menu.appendChild(el);
+    });
+
+    document.body.appendChild(menu);
+
+    function removeMenu(e) {
+        if (!menu.contains(e.target)) {
+            menu.remove();
+            document.removeEventListener('click', removeMenu);
+        }
+    }
+    setTimeout(function() {
+        document.addEventListener('click', removeMenu);
+    }, 10);
+}
+
+var bookmarkNodeViewPlugin = $prose(function() {
+    return new Plugin({
+        key: new PluginKey('bookmarkNodeView'),
+        props: {
+            nodeViews: {
+                bookmark: function(node, view, getPos) {
+                    return createBookmarkNodeView(node, view, getPos);
+                }
+            }
+        }
+    });
 });
 
 // ─── Flashcard node view ──────────────────────────────
@@ -2679,6 +3106,9 @@ async function initEditor() {
         .use(remarkFlashcard)
         .use(flashcardSchema)
         .use(flashcardNodeViewPlugin)
+        .use(remarkBookmark)
+        .use(bookmarkSchema)
+        .use(bookmarkNodeViewPlugin)
         .create();
 
     editorInstance = editor;
@@ -3017,6 +3447,21 @@ window.executeCommand = function(command, payload) {
                     if (fcType) {
                         var fcNode = fcType.create({ question: 'Question', answer: 'Answer' });
                         view.dispatch(view.state.tr.replaceSelectionWith(fcNode));
+                    }
+                    break;
+                }
+                case 'insertBookmark': {
+                    var bmUrl = prompt('Enter URL:');
+                    if (bmUrl) {
+                        bmUrl = bmUrl.trim();
+                        if (/^https?:\/\/[^\s]+$/.test(bmUrl)) {
+                            var bmType = view.state.schema.nodes.bookmark;
+                            if (bmType) {
+                                var bmNode = bmType.create({ url: bmUrl });
+                                view.dispatch(view.state.tr.replaceSelectionWith(bmNode));
+                                sendToSwift('fetchBookmarkMeta', { url: bmUrl });
+                            }
+                        }
                     }
                     break;
                 }

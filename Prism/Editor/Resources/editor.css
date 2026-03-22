@@ -1,0 +1,1347 @@
+/* ─── Theme Variables ─────────────────────────────────── */
+
+[data-theme="light"] {
+    --bg: #FAFAF8;
+    --text: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --text-tertiary: #AEAEB2;
+    --accent: #4A90D9;
+    --code-bg: #F5F5F3;
+    --code-border: #E5E5E5;
+    --border: #E5E5E5;
+    --selection: #B4D7FF;
+    --blockquote-bg: #F5F5F3;
+    --blockquote-border: #D1D1D6;
+    --hr-color: #D1D1D6;
+    --link-color: #4A90D9;
+    --checkbox-accent: #4A90D9;
+    --scrollbar-thumb: #C7C7CC;
+    --scrollbar-track: transparent;
+    --placeholder-color: #C7C7CC;
+}
+
+[data-theme="dark"] {
+    --bg: #1E1E22;
+    --text: #E8E8EA;
+    --text-secondary: #98989D;
+    --text-tertiary: #636366;
+    --accent: #64A8F0;
+    --code-bg: #2C2C30;
+    --code-border: #3A3A3C;
+    --border: #3A3A3C;
+    --selection: #2A5090;
+    --blockquote-bg: #2C2C30;
+    --blockquote-border: #48484A;
+    --hr-color: #48484A;
+    --link-color: #64A8F0;
+    --checkbox-accent: #64A8F0;
+    --scrollbar-thumb: #48484A;
+    --scrollbar-track: transparent;
+    --placeholder-color: #48484A;
+}
+
+/* ─── Base ────────────────────────────────────────────── */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+::selection {
+    background: var(--selection);
+}
+
+/* ─── Editor Container ───────────────────────────────── */
+
+#editor {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 24px 120px;
+    min-height: 100vh;
+}
+
+/* ─── ProseMirror ────────────────────────────────────── */
+
+.ProseMirror {
+    outline: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.ProseMirror-focused {
+    outline: none;
+}
+
+/* Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before,
+.ProseMirror > .is-empty::before {
+    content: 'Start writing...';
+    color: var(--placeholder-color);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
+
+/* ─── Headings ───────────────────────────────────────── */
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3,
+.ProseMirror h4,
+.ProseMirror h5,
+.ProseMirror h6 {
+    font-family: 'SF Pro Display', -apple-system, sans-serif;
+}
+
+.ProseMirror h1 {
+    font-size: 2em;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 1.5em 0 0.6em;
+    color: var(--text);
+}
+
+.ProseMirror h1:first-child {
+    margin-top: 0;
+}
+
+.ProseMirror h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    margin: 1.4em 0 0.5em;
+    color: var(--text);
+}
+
+.ProseMirror h3 {
+    font-size: 1.25em;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 1.3em 0 0.4em;
+    color: var(--text);
+}
+
+.ProseMirror h4 {
+    font-size: 1.1em;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 1.2em 0 0.4em;
+    color: var(--text);
+}
+
+.ProseMirror h5, .ProseMirror h6 {
+    font-size: 1em;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 1.2em 0 0.3em;
+    color: var(--text-secondary);
+}
+
+/* ─── Paragraphs ─────────────────────────────────────── */
+
+.ProseMirror p {
+    margin: 0 0 0.75em;
+}
+
+/* ─── Inline Formatting ──────────────────────────────── */
+
+.ProseMirror strong {
+    font-weight: 700;
+}
+
+.ProseMirror em {
+    font-style: italic;
+}
+
+.ProseMirror s,
+.ProseMirror del {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.ProseMirror code {
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    font-size: 0.875em;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    padding: 0.15em 0.4em;
+}
+
+/* ─── Code Blocks ────────────────────────────────────── */
+
+.code-block-wrapper {
+    position: relative;
+    margin: 1em 0;
+}
+
+.code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    padding: 6px 12px;
+    min-height: 28px;
+}
+
+.code-block-lang {
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    font-size: 0.75em;
+    color: var(--text-tertiary);
+    text-transform: lowercase;
+    user-select: none;
+}
+
+.code-block-copy {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 0.7em;
+    color: var(--text-tertiary);
+    background: none;
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.code-block-copy:hover {
+    color: var(--text-secondary);
+    border-color: var(--text-secondary);
+}
+
+.code-block-copy.copied {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.code-block-wrapper pre {
+    margin: 0;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Fallback for code blocks not yet wrapped */
+.ProseMirror pre {
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    font-size: 0.875em;
+    line-height: 1.6;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 1em 0;
+    overflow-x: auto;
+    white-space: pre;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ProseMirror pre code {
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font-size: inherit;
+}
+
+/* ─── Blockquotes ────────────────────────────────────── */
+
+.ProseMirror blockquote {
+    border-left: 3px solid var(--blockquote-border);
+    background: var(--blockquote-bg);
+    border-radius: 0 6px 6px 0;
+    margin: 1em 0;
+    padding: 12px 20px;
+    color: var(--text-secondary);
+}
+
+.ProseMirror blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* ─── Lists ──────────────────────────────────────────── */
+
+.ProseMirror ul,
+.ProseMirror ol {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+}
+
+.ProseMirror li {
+    margin: 0.25em 0;
+    position: relative;
+}
+
+.ProseMirror li > p {
+    margin: 0;
+}
+
+/* Indent guide lines for nested lists (Obsidian-style) */
+.ProseMirror li > ul,
+.ProseMirror li > ol {
+    position: relative;
+}
+
+.ProseMirror li > ul::before,
+.ProseMirror li > ol::before {
+    content: '';
+    position: absolute;
+    left: -0.85em;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+    opacity: 0.5;
+}
+
+/* Task lists */
+.ProseMirror li[data-checked] {
+    list-style: none;
+    position: relative;
+    margin-left: -1.5em;
+    padding-left: 1.5em;
+}
+
+.ProseMirror li[data-checked]::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.35em;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.ProseMirror li[data-checked="true"]::before {
+    background: var(--checkbox-accent);
+    border-color: var(--checkbox-accent);
+}
+
+.ProseMirror li[data-checked="true"]::after {
+    content: '\2713';
+    position: absolute;
+    left: 2px;
+    top: 0.25em;
+    font-size: 12px;
+    color: white;
+    font-weight: 700;
+}
+
+/* ─── Horizontal Rule ────────────────────────────────── */
+
+.ProseMirror hr {
+    border: none;
+    border-top: 1px solid var(--hr-color);
+    margin: 2em 0;
+}
+
+/* ─── Links ──────────────────────────────────────────── */
+
+.ProseMirror a {
+    color: var(--link-color);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.ProseMirror a:hover {
+    text-decoration: underline;
+}
+
+/* ─── Images ─────────────────────────────────────────── */
+
+.ProseMirror img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+/* ─── Tables ─────────────────────────────────────────── */
+
+.ProseMirror table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 0.95em;
+}
+
+.ProseMirror th {
+    text-align: left;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-bottom: 2px solid var(--border);
+    background: transparent;
+}
+
+.ProseMirror td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    border-left: none;
+    border-right: none;
+}
+
+.ProseMirror tr:last-child td {
+    border-bottom: none;
+}
+
+.ProseMirror .selectedCell {
+    background: rgba(74, 144, 217, 0.10) !important;
+}
+
+/* Striped rows */
+.ProseMirror table.striped tr:nth-child(even) td {
+    background: var(--code-bg);
+}
+
+/* Column resize handle */
+/* Column resize handles hidden — plugin causes WebKit rendering flood */
+.ProseMirror .column-resize-handle {
+    display: none !important;
+}
+
+/* ─── Table Toolbar ──────────────────────────────────── */
+
+.prism-table-toolbar {
+    position: absolute;
+    z-index: 150;
+    padding: 6px;
+    background: var(--code-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--code-border);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    user-select: none;
+    -webkit-user-select: none;
+    width: 220px;
+}
+
+.prism-table-toolbar .tt-row {
+    display: flex;
+    gap: 2px;
+    padding: 2px 0;
+    align-items: center;
+}
+
+.prism-table-toolbar button {
+    height: 24px;
+    padding: 0 6px;
+    border: none;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+}
+
+.prism-table-toolbar button:hover {
+    background: var(--selection);
+    color: var(--text);
+}
+
+.prism-table-toolbar .tt-toggle {
+    font-size: 10px;
+    padding: 0 6px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid var(--code-border);
+    color: var(--text-tertiary);
+}
+
+.prism-table-toolbar .tt-toggle.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.prism-table-toolbar .tt-danger {
+    font-size: 10px;
+    color: var(--text-tertiary);
+}
+
+.prism-table-toolbar .tt-danger:hover {
+    background: rgba(255, 59, 48, 0.1);
+    color: #FF3B30;
+}
+
+.prism-table-toolbar .tt-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    margin: 0 2px;
+    transition: border-color 0.1s, transform 0.1s;
+}
+
+.prism-table-toolbar .tt-color:hover {
+    border-color: var(--text-secondary);
+    transform: scale(1.15);
+}
+
+/* ─── Table Settings Bar ─────────────────────────────── */
+
+.table-settings-bar {
+    position: absolute;
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--code-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.table-settings-bar .ts-toggle {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+.table-settings-bar .ts-toggle:hover {
+    background: var(--selection);
+    color: var(--text);
+}
+
+.table-settings-bar .ts-toggle.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.table-settings-bar .ts-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: border-color 0.1s, transform 0.1s;
+}
+
+.table-settings-bar .ts-color:hover {
+    border-color: var(--text-secondary);
+    transform: scale(1.15);
+}
+
+/* ─── Table Style Toggles (via data attributes) ──────── */
+
+/* Header toggle */
+.ProseMirror table[data-header="true"] th {
+    font-weight: 700;
+    background: var(--code-bg);
+    border-bottom: 2px solid var(--border);
+}
+
+/* Striped toggle */
+.ProseMirror table[data-striped="true"] tr:nth-child(even) td {
+    background: var(--code-bg);
+}
+
+/* Borders toggle (vertical lines) */
+.ProseMirror table[data-borders="true"] td,
+.ProseMirror table[data-borders="true"] th {
+    border-right: 1px solid var(--border);
+}
+.ProseMirror table[data-borders="true"] td:last-child,
+.ProseMirror table[data-borders="true"] th:last-child {
+    border-right: none;
+}
+
+/* Outline toggle */
+.ProseMirror table[data-outline="true"] {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+/* Header color presets */
+.ProseMirror table[data-color="gray"] th { background: rgba(110, 118, 129, 0.12) !important; }
+.ProseMirror table[data-color="blue"] th { background: rgba(74, 144, 217, 0.12) !important; }
+.ProseMirror table[data-color="green"] th { background: rgba(52, 199, 89, 0.12) !important; }
+.ProseMirror table[data-color="purple"] th { background: rgba(175, 82, 222, 0.12) !important; }
+.ProseMirror table[data-color="orange"] th { background: rgba(255, 149, 0, 0.12) !important; }
+
+/* ─── Math Rendering ─────────────────────────────────── */
+
+/* Inline math */
+.math-inline,
+.ProseMirror .math-node-inline {
+    display: inline;
+}
+
+.math-inline .katex,
+.ProseMirror .math-node-inline .katex {
+    font-size: 1em;
+}
+
+/* Block math */
+.math-display,
+.ProseMirror .math-node-display {
+    margin: 1.5em 0;
+    padding: 16px 20px;
+    background: var(--code-bg);
+    border-radius: 8px;
+    overflow-x: auto;
+    text-align: center;
+}
+
+.math-display .katex-display,
+.ProseMirror .math-node-display .katex-display {
+    margin: 0;
+}
+
+/* Selected math node */
+.math-inline.ProseMirror-selectednode,
+.math-display.ProseMirror-selectednode,
+.ProseMirror .math-node-inline.ProseMirror-selectednode,
+.ProseMirror .math-node-display.ProseMirror-selectednode {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* LaTeX source input when editing */
+.math-src {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: 15px;
+    color: var(--accent);
+    background: var(--code-bg);
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    outline: none;
+    min-width: 200px;
+}
+
+.math-src-block {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    text-align: left;
+    resize: vertical;
+    font-size: 15px;
+    padding: 8px 12px;
+    box-sizing: border-box;
+}
+
+/* Rendered math container */
+.math-rendered {
+    cursor: pointer;
+}
+
+/* Inline math */
+.math-node-inline {
+    display: inline !important;
+    vertical-align: baseline !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer;
+    -webkit-user-modify: read-only;
+}
+
+.math-node-inline .math-rendered {
+    display: inline !important;
+}
+
+.math-node-inline .katex {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+
+/* Block math */
+.math-node-display {
+    cursor: pointer;
+}
+
+/* KaTeX overrides for theme */
+.katex {
+    color: var(--text);
+}
+
+/* ─── YouTube Embed ──────────────────────────────────── */
+
+.youtube-embed {
+    margin: 1.5em 0;
+    max-width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    line-height: 0;
+}
+
+.youtube-embed.ProseMirror-selectednode {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.youtube-thumb-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    cursor: pointer;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.youtube-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.youtube-thumb-container:hover .youtube-thumb {
+    transform: scale(1.03);
+}
+
+/* Bottom gradient for text readability */
+.youtube-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    pointer-events: none;
+}
+
+/* Play button — blue frosted circle */
+.youtube-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    background: rgba(66, 133, 244, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    padding-left: 3px;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 4px 16px rgba(66, 133, 244, 0.4);
+}
+
+.youtube-thumb-container:hover .youtube-play-btn {
+    transform: translate(-50%, -50%) scale(1.08);
+    background: rgba(66, 133, 244, 0.95);
+}
+
+/* Info overlay — bottom of thumbnail */
+.youtube-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 20px;
+    pointer-events: none;
+    line-height: normal;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.youtube-title {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 6px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.youtube-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.youtube-badge {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 3px;
+    opacity: 0.8;
+}
+
+.youtube-author {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+}
+
+/* Player (inline playback via srcdoc) */
+.youtube-player-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    line-height: 0;
+    background: #000;
+}
+
+.youtube-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Context menu */
+.yt-context-menu {
+    position: fixed;
+    z-index: 9999;
+    background: var(--code-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    padding: 4px;
+    min-width: 160px;
+}
+
+.yt-menu-item {
+    padding: 6px 12px;
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.yt-menu-item:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.yt-menu-sep {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 8px;
+}
+
+[data-theme="dark"] .youtube-embed {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* ─── Flashcard Block ────────────────────────────────── */
+
+.flashcard-block {
+    margin: 1.5em 0;
+    max-width: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.flashcard-block.ProseMirror-selectednode {
+    outline: none;
+}
+
+.flashcard-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding: 0 2px;
+}
+
+.flashcard-icon {
+    font-size: 13px;
+    color: var(--accent);
+}
+
+.flashcard-label {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.flashcard-edit-btn {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin-left: auto;
+    transition: background 0.15s;
+}
+
+.flashcard-edit-btn:hover {
+    background: rgba(74, 144, 217, 0.08);
+}
+
+.flashcard-edit-btn.active {
+    background: rgba(74, 144, 217, 0.12);
+}
+
+[data-theme="dark"] .flashcard-edit-btn:hover {
+    background: rgba(100, 168, 240, 0.1);
+}
+
+[data-theme="dark"] .flashcard-edit-btn.active {
+    background: rgba(100, 168, 240, 0.15);
+}
+
+.flashcard-set-badge {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(74, 144, 217, 0.06);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+    outline: none;
+    min-width: 16px;
+    text-align: right;
+}
+
+.flashcard-set-badge[contenteditable="true"] {
+    cursor: text;
+}
+
+.flashcard-set-badge:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-tertiary);
+    opacity: 0.4;
+}
+
+.flashcard-set-badge:focus {
+    background: rgba(74, 144, 217, 0.12);
+}
+
+[data-theme="dark"] .flashcard-set-badge {
+    background: rgba(100, 168, 240, 0.08);
+}
+
+[data-theme="dark"] .flashcard-set-badge:focus {
+    background: rgba(100, 168, 240, 0.15);
+}
+
+/* Stacked flashcard sets — adjacent flashcards stack visually */
+.flashcard-stack-hidden {
+    display: none !important;
+}
+
+.flashcard-stack-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.flashcard-nav-btn {
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--accent);
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.flashcard-nav-btn:hover {
+    background: rgba(74, 144, 217, 0.08);
+}
+
+.flashcard-nav-btn.disabled {
+    color: var(--text-tertiary);
+    opacity: 0.4;
+    cursor: default;
+}
+
+.flashcard-nav-btn.disabled:hover {
+    background: none;
+}
+
+.flashcard-nav-counter {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 40px;
+    text-align: center;
+}
+
+[data-theme="dark"] .flashcard-nav-btn:hover {
+    background: rgba(100, 168, 240, 0.1);
+}
+
+.flashcard-card {
+    perspective: 1000px;
+    cursor: pointer;
+    position: relative;
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    min-height: 140px;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+}
+
+.flashcard-card[data-flipped="true"] .flashcard-inner {
+    transform: rotateY(180deg);
+}
+
+.flashcard-front {
+    position: relative;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    padding: 28px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 140px;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(0deg);
+}
+
+.flashcard-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    padding: 28px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: rotateY(180deg);
+}
+
+.flashcard-face-label {
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.flashcard-content {
+    font-family: 'SF Pro Display', -apple-system, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text);
+    outline: none;
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    min-width: 80px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+    width: 100%;
+}
+
+.flashcard-content[contenteditable="true"] {
+    cursor: text;
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+/* KaTeX rendering inside flashcard content */
+.flashcard-content .katex {
+    font-size: 1em;
+}
+
+.flashcard-content:focus {
+    background: rgba(74, 144, 217, 0.06);
+}
+
+.flashcard-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0 2px;
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.flashcard-card:hover .flashcard-hint {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.flashcard-hint-icon {
+    font-size: 14px;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .flashcard-front {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+[data-theme="dark"] .flashcard-back {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+[data-theme="dark"] .flashcard-content:focus {
+    background: rgba(100, 168, 240, 0.08);
+}
+
+/* ─── Reading Mode ───────────────────────────────────── */
+
+body.reading-mode .ProseMirror {
+    cursor: default;
+}
+
+/* ─── Focus Mode ─────────────────────────────────────── */
+
+body.focus-mode .ProseMirror > *:not(.has-focus) {
+    opacity: 0.25;
+    transition: opacity 0.3s ease;
+}
+
+body.focus-mode .ProseMirror > .has-focus {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────── */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+/* ─── Slash Command Menu ─────────────────────────────── */
+
+.prism-slash-menu {
+    position: absolute;
+    z-index: 200;
+    width: 220px;
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--code-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    padding: 4px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.prism-slash-menu .slash-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'SF Pro Text', -apple-system, sans-serif;
+    height: 28px;
+}
+
+.prism-slash-menu .slash-item:hover {
+    background: var(--selection);
+}
+
+.prism-slash-menu .slash-item.selected {
+    background: var(--accent);
+    color: white;
+}
+
+.prism-slash-menu .slash-icon {
+    font-size: 14px;
+    width: 20px;
+    text-align: center;
+    opacity: 0.7;
+}
+
+/* ─── Find/Replace Bar ───────────────────────────────── */
+
+.prism-find-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 300;
+    background: var(--code-bg);
+    border-bottom: 1px solid var(--code-border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.prism-find-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.prism-find-row + .prism-find-row {
+    margin-top: 4px;
+}
+
+.prism-find-input {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+
+.prism-find-input:focus {
+    border-color: var(--accent);
+}
+
+.prism-find-count {
+    font-size: 11px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: center;
+}
+
+.prism-find-btn {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.prism-find-btn:hover {
+    background: var(--border);
+    color: var(--text);
+}
+
+.prism-find-close {
+    font-size: 18px;
+    font-weight: 300;
+}
+
+.prism-replace-btn {
+    width: auto;
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+/* ─── Find Match Highlights ──────────────────────────── */
+
+.prism-find-match {
+    background: rgba(255, 200, 0, 0.3);
+    border-radius: 2px;
+}
+
+.prism-find-match-current {
+    background: rgba(255, 150, 0, 0.5);
+}

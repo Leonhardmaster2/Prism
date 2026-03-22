@@ -1,0 +1,24 @@
+{
+  "name": "editor-build",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@milkdown/core": "^7.19.0",
+    "@milkdown/ctx": "^7.19.0",
+    "@milkdown/kit": "^7.19.0",
+    "@milkdown/plugin-history": "^7.19.0",
+    "@milkdown/plugin-listener": "^7.19.0",
+    "@milkdown/plugin-math": "^7.5.9",
+    "@milkdown/preset-commonmark": "^7.19.0",
+    "@milkdown/prose": "^7.19.0",
+    "esbuild": "^0.27.4"
+  }
+}

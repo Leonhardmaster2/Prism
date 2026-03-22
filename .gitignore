@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Xcode
+build/
+DerivedData/
+*.xcuserdata
+xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# Node
+editor-build/node_modules/
+
+# Misc
+*.log

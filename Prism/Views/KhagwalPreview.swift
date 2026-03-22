@@ -1149,7 +1149,7 @@ private struct HoldToConfirm: View {
                     LongPressGesture(minimumDuration: 1.5)
                         .onChanged { _ in
                             isHolding = true
-                            withAnimation(.khagwal) {
+                            withAnimation(Animation.khagwal) {
                                 holdProgress = 1.0
                             }
                         }
@@ -1440,10 +1440,10 @@ private struct BreathingOrbs: View {
                             x: orb.x * geo.size.width - geo.size.width / 2,
                             y: orb.y * geo.size.height - geo.size.height / 2
                         )
-                        .animation(
-                            .khagwalBouncy
-                                .repeatForever(autoreverses: true)
-                                .delay(Double(index) * 0.4),
+                        .animation({
+                            let base: Animation = .khagwalBouncy
+                            return base.repeatForever(autoreverses: true).delay(Double(index) * 0.4)
+                        }(),
                             value: breathe
                         )
                 }
@@ -1786,10 +1786,10 @@ private struct OrbitLoader: View {
                     .frame(width: CGFloat(10 - index), height: CGFloat(10 - index))
                     .offset(y: -20)
                     .rotationEffect(.degrees(isAnimating ? 360 : 0))
-                    .animation(
-                        .khagwal
-                            .repeatForever(autoreverses: false)
-                            .delay(Double(index) * 0.1),
+                    .animation({
+                        let base: Animation = .khagwal
+                        return base.repeatForever(autoreverses: false).delay(Double(index) * 0.1)
+                    }(),
                         value: isAnimating
                     )
             }

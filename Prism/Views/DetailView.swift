@@ -48,12 +48,11 @@ struct DetailView: View {
                 )
 
                 // Metadata bar
-                HStack(spacing: 12) {
+                HStack(spacing: KSpacing.micro) {
                     Text("\(document.wordCount) words")
                     Text(document.modifiedAt, style: .relative)
                 }
-                .font(.system(size: 11))
-                .foregroundStyle(.tertiary)
+                .khagwalCaption()
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 6)
                 .background(.bar)
@@ -68,10 +67,12 @@ struct DetailView: View {
                         bridge.executeCommand(command, payload: payload)
                     }
                 )
-                .padding(.bottom, 28) // above the metadata bar
+                .padding(.bottom, KSpacing.macro) // above the metadata bar
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .background(KColors.canvas)
+        .animation(.khagwal, value: appState.isReadingMode)
         .onAppear {
             bridge.onSaveRequested = { [weak modelContext] in
                 guard let ctx = modelContext else { return }
@@ -90,7 +91,6 @@ struct DetailView: View {
     }
 
     private func handleContentChanged(document: PrismDocument, markdown: String, wordCount: Int) {
-        // Save content to disk (doesn't trigger SwiftUI re-render)
         let service = DocumentService(modelContext: modelContext)
         do {
             try service.updateContent(document, content: markdown, wordCount: wordCount)
@@ -98,10 +98,8 @@ struct DetailView: View {
             print("[PRISM] Failed to save content: \(error)")
         }
 
-        // Update title only if actually different — avoid unnecessary SwiftData mutations
         let title = extractTitle(from: markdown)
         if title != document.title {
-            // Debounce title updates to avoid feedback loops
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak modelContext] in
                 guard let ctx = modelContext else { return }
                 if title != document.title {
@@ -123,46 +121,62 @@ struct DetailView: View {
         return "Untitled"
     }
 
+    // MARK: - Empty State
+
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: KSpacing.micro) {
             Image(systemName: "doc.text")
+                .symbolRenderingMode(.hierarchical)
                 .font(.system(size: 48))
                 .foregroundStyle(.quaternary)
             Text("Select a document or create a new one")
-                .font(.system(size: 15))
+                .khagwalBody()
                 .foregroundStyle(.secondary)
             Button {
+                KHaptics.light()
                 createDocument()
             } label: {
                 Text("New Document")
-                    .font(.system(size: 13, weight: .medium))
+                    .khagwalHeadline()
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, KSpacing.standard)
+                    .padding(.vertical, KSpacing.nano)
+                    .background(KColors.primaryAction, in: RoundedRectangle(cornerRadius: KRadius.medium, style: .continuous))
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.regular)
+            .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(KColors.canvas)
     }
 
+    // MARK: - Welcome State
+
     private var welcomeState: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: KSpacing.standard) {
             Image(systemName: "sparkles")
+                .symbolRenderingMode(.hierarchical)
                 .font(.system(size: 48))
                 .foregroundStyle(.tint)
             Text("Welcome to Prism")
-                .font(.system(size: 28, weight: .bold))
+                .khagwalTitle()
             Text("Your notes, beautifully rendered")
-                .font(.system(size: 15))
+                .khagwalBody()
                 .foregroundStyle(.secondary)
             Button {
+                KHaptics.light()
                 createDocument()
             } label: {
                 Text("Create your first document")
-                    .font(.system(size: 13, weight: .medium))
+                    .khagwalHeadline()
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, KSpacing.macro)
+                    .padding(.vertical, KSpacing.micro)
+                    .background(KColors.primaryAction, in: RoundedRectangle(cornerRadius: KRadius.medium, style: .continuous))
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(KColors.canvas)
     }
 
     private func createDocument() {

@@ -125,7 +125,7 @@ struct SidebarView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: KSpacing.nano, style: .continuous))
     }
 
     // MARK: - Section Header
@@ -177,14 +177,16 @@ struct SidebarView: View {
         let isHovered = hoveredItemID == itemID
 
         return Button {
+            KHaptics.light()
             appState.sidebarFilter = filter
             appState.searchQuery = ""
         } label: {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
+            HStack(spacing: KSpacing.nano) {
+                Image(systemName: isSelected ? "\(icon).fill" : icon)
+                    .symbolRenderingMode(.hierarchical)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(isSelected ? colors.accent : .secondary)
-                    .frame(width: 16)
+                    .frame(width: KSpacing.micro)
                 Text(label)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(isSelected ? .primary : .secondary)
@@ -197,17 +199,17 @@ struct SidebarView: View {
                     .padding(.vertical, 1)
                     .background(.quaternary, in: Capsule())
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, KSpacing.nano)
             .padding(.vertical, 6)
             .background(
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: KRadius.small, style: .continuous)
                     .fill(isSelected ? colors.selectedRow : (isHovered ? colors.hoverRow : Color.clear))
             )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.1)) {
+            withAnimation(.khagwalSnappy) {
                 hoveredItemID = hovering ? itemID : nil
             }
         }
@@ -311,7 +313,7 @@ struct SidebarView: View {
                 .padding(.vertical, 6)
             } else {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.15)) {
+                    withAnimation(.khagwalSnappy) {
                         if isExpanded {
                             expandedFolders.remove(workspace.id)
                         } else {
@@ -339,11 +341,11 @@ struct SidebarView: View {
                     .padding(.trailing, 6)
                     .padding(.vertical, 5)
                     .background(
-                        RoundedRectangle(cornerRadius: 6)
+                        RoundedRectangle(cornerRadius: KRadius.small, style: .continuous)
                             .fill(isDropTarget ? colors.accent.opacity(0.2) : (isHovered ? colors.hoverRow : Color.clear))
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 6)
+                        RoundedRectangle(cornerRadius: KRadius.small, style: .continuous)
                             .strokeBorder(isDropTarget ? colors.accent.opacity(0.5) : Color.clear, lineWidth: 1.5)
                     )
                     .overlay(alignment: .leading) {
@@ -357,7 +359,7 @@ struct SidebarView: View {
                 }
                 .buttonStyle(.plain)
                 .onHover { hovering in
-                    withAnimation(.easeInOut(duration: 0.1)) {
+                    withAnimation(.khagwalSnappy) {
                         hoveredItemID = hovering ? itemID : nil
                     }
                 }
@@ -375,12 +377,12 @@ struct SidebarView: View {
                             }
                         }
                     }
-                    _ = withAnimation(.easeInOut(duration: 0.15)) {
+                    _ = withAnimation(.khagwalSnappy) {
                         expandedFolders.insert(workspace.id)
                     }
                     return true
                 } isTargeted: { isTargeted in
-                    withAnimation(.easeInOut(duration: 0.1)) {
+                    withAnimation(.khagwalSnappy) {
                         dropTargetFolderID = isTargeted ? workspace.id : nil
                     }
                 }
@@ -461,14 +463,14 @@ struct SidebarView: View {
             .padding(.trailing, 8)
             .padding(.vertical, 5)
             .background(
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: KRadius.small, style: .continuous)
                     .fill(isSelected ? colors.selectedRow : (isHovered ? colors.hoverRow : Color.clear))
             )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.1)) {
+            withAnimation(.khagwalSnappy) {
                 hoveredItemID = hovering ? itemID : nil
             }
         }
@@ -496,28 +498,38 @@ struct SidebarView: View {
 
     private var bottomBar: some View {
         HStack {
-            Button { appState.showSettings = true } label: {
+            Button {
+                KHaptics.light()
+                withAnimation(.khagwal) { appState.showSettings = true }
+            } label: {
                 Image(systemName: "gear")
+                    .symbolRenderingMode(.hierarchical)
                     .font(.system(size: 13))
                     .foregroundStyle(.tertiary)
+                    .frame(minWidth: 44, minHeight: 44)
             }
             .buttonStyle(.plain)
 
             Spacer()
 
-            Button { appState.cycleAppearance() } label: {
+            Button {
+                KHaptics.light()
+                appState.cycleAppearance()
+            } label: {
                 Image(systemName: appState.appearanceIcon)
+                    .symbolRenderingMode(.hierarchical)
                     .font(.system(size: 13))
                     .foregroundStyle(.tertiary)
                     .contentTransition(.symbolEffect(.replace))
+                    .frame(minWidth: 44, minHeight: 44)
             }
             .buttonStyle(.plain)
             .help("Appearance: \(appState.appearanceLabel)")
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.horizontal, KSpacing.micro)
+        .padding(.vertical, KSpacing.nano)
         .overlay(alignment: .top) {
-            Color.primary.opacity(0.06).frame(height: 1)
+            KColors.border.frame(height: 1)
         }
     }
 
@@ -583,10 +595,14 @@ struct SidebarView: View {
     }
 
     private func stripButton(icon: String, tooltip: String, isActive: Bool = false, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: icon)
+        Button {
+            KHaptics.light()
+            action()
+        } label: {
+            Image(systemName: isActive ? "\(icon).fill" : icon)
+                .symbolRenderingMode(.hierarchical)
                 .font(.system(size: 13, weight: .medium))
-                .frame(width: 32, height: 32)
+                .frame(width: 44, height: 44)
                 .foregroundColor(isActive ? colors.accent : Color.secondary.opacity(0.6))
         }
         .buttonStyle(.plain)

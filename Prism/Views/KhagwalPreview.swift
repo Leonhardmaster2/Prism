@@ -1149,7 +1149,7 @@ private struct HoldToConfirm: View {
                     LongPressGesture(minimumDuration: 1.5)
                         .onChanged { _ in
                             isHolding = true
-                            withAnimation(.linear(duration: 1.5)) {
+                            withAnimation(.khagwal) {
                                 holdProgress = 1.0
                             }
                         }
@@ -1441,7 +1441,7 @@ private struct BreathingOrbs: View {
                             y: orb.y * geo.size.height - geo.size.height / 2
                         )
                         .animation(
-                            .easeInOut(duration: 3 + Double(index) * 0.5)
+                            .khagwalBouncy
                                 .repeatForever(autoreverses: true)
                                 .delay(Double(index) * 0.4),
                             value: breathe
@@ -1787,7 +1787,7 @@ private struct OrbitLoader: View {
                     .offset(y: -20)
                     .rotationEffect(.degrees(isAnimating ? 360 : 0))
                     .animation(
-                        .linear(duration: 1.2)
+                        .khagwal
                             .repeatForever(autoreverses: false)
                             .delay(Double(index) * 0.1),
                         value: isAnimating

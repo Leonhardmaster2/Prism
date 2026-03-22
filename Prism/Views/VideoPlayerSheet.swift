@@ -9,18 +9,25 @@ struct VideoPlayerSheet: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Button { dismiss() } label: {
+                Button {
+                    KHaptics.light()
+                    dismiss()
+                } label: {
                     Image(systemName: "xmark.circle.fill")
+                        .symbolRenderingMode(.hierarchical)
                         .font(.title2)
                         .foregroundStyle(.secondary)
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
-                .padding(12)
+                .padding(KSpacing.nano)
             }
 
             YouTubePlayerView(videoId: videoId)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .background(KColors.canvas)
+        .clipShape(RoundedRectangle(cornerRadius: KRadius.large, style: .continuous))
         #if os(macOS)
         .frame(minWidth: 640, minHeight: 400)
         #endif

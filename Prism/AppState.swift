@@ -64,7 +64,7 @@ final class AppState {
     }
 
     func toggleSidebar() {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+        withAnimation(.khagwal) {
             isSidebarExpanded.toggle()
         }
     }

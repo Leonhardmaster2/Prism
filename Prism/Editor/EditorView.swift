@@ -18,6 +18,7 @@ struct EditorView: View {
             onContentChanged: onContentChanged,
             onStateChanged: onStateChanged
         )
+        .background(KColors.canvas)
     }
 }
 

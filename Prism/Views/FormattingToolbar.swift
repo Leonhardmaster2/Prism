@@ -14,11 +14,11 @@ struct FormattingToolbar: View {
                 blockMode
             }
         }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, KSpacing.nano)
         .padding(.vertical, 6)
         .modifier(GlassToolbarModifier())
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
+        .padding(.horizontal, KSpacing.micro)
+        .padding(.bottom, KSpacing.nano)
     }
 
     // MARK: - Block Mode (no selection)
@@ -81,6 +81,7 @@ struct FormattingToolbar: View {
         Menu {
             ForEach(1...6, id: \.self) { level in
                 Button {
+                    KHaptics.light()
                     onCommand("heading", ["level": level])
                 } label: {
                     HStack {
@@ -88,8 +89,7 @@ struct FormattingToolbar: View {
                             .font(.system(size: headingFontSize(level), weight: level <= 3 ? .bold : .semibold, design: .rounded))
                         Spacer()
                         Text("Heading \(level)")
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
+                            .khagwalCaption()
                     }
                 }
             }
@@ -102,7 +102,7 @@ struct FormattingToolbar: View {
                     editorState.headingLevel > 0
                     ? Color.accentColor.opacity(0.1)
                     : Color.clear,
-                    in: RoundedRectangle(cornerRadius: 5)
+                    in: RoundedRectangle(cornerRadius: KSpacing.nano, style: .continuous)
                 )
         }
         .menuStyle(.borderlessButton)
@@ -122,15 +122,17 @@ struct FormattingToolbar: View {
 
     private func toolbarButton(_ command: String, icon: String, active: Bool) -> some View {
         Button {
+            KHaptics.light()
             onCommand(command, nil)
         } label: {
             Image(systemName: icon)
+                .symbolRenderingMode(.hierarchical)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(active ? Color.accentColor : .secondary)
                 .frame(width: 32, height: 26)
                 .background(
                     active ? Color.accentColor.opacity(0.1) : Color.clear,
-                    in: RoundedRectangle(cornerRadius: 5)
+                    in: RoundedRectangle(cornerRadius: KSpacing.nano, style: .continuous)
                 )
         }
         .buttonStyle(.plain)
@@ -138,7 +140,7 @@ struct FormattingToolbar: View {
 
     private var divider: some View {
         Divider()
-            .frame(height: 18)
+            .frame(height: KSpacing.micro)
             .padding(.horizontal, 3)
     }
 }
@@ -148,7 +150,7 @@ private struct GlassToolbarModifier: ViewModifier {
         if #available(macOS 26.0, iOS 26.0, *) {
             content
                 .glassEffect(.regular, in: .capsule)
-                .shadow(color: .black.opacity(0.12), radius: 16, y: -4)
+                .khagwalShadow()
         } else {
             content
                 .background {
@@ -156,10 +158,10 @@ private struct GlassToolbarModifier: ViewModifier {
                         .fill(.ultraThinMaterial)
                         .overlay {
                             Capsule()
-                                .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                                .strokeBorder(KColors.border, lineWidth: 1)
                         }
                 }
-                .shadow(color: .black.opacity(0.15), radius: 16, y: -4)
+                .khagwalShadow()
         }
     }
 }

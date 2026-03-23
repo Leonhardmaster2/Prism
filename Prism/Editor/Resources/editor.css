@@ -891,23 +891,23 @@ body {
 .flashcard-header {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-    padding: 0 2px;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 0 4px;
 }
 
 .flashcard-icon {
-    font-size: 13px;
-    color: var(--accent);
+    font-size: 18px;
+    color: #B8860B;
 }
 
 .flashcard-label {
-    font-family: 'SF Pro Text', -apple-system, sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-family: 'SF Pro Display', -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: none;
+    letter-spacing: -0.2px;
 }
 
 .flashcard-edit-btn {
@@ -1020,10 +1020,12 @@ body {
 .flashcard-nav-counter {
     font-family: 'SF Pro Text', -apple-system, sans-serif;
     font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
+    font-weight: 700;
+    color: var(--text-tertiary);
     min-width: 40px;
     text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 [data-theme="dark"] .flashcard-nav-btn:hover {
@@ -1039,7 +1041,7 @@ body {
 .flashcard-inner {
     position: relative;
     width: 100%;
-    min-height: 140px;
+    min-height: 220px;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
     -webkit-transform-style: preserve-3d;
@@ -1053,15 +1055,15 @@ body {
     position: relative;
     background: var(--bg);
     border: 1px solid var(--border);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-    border-radius: 12px;
-    padding: 28px 24px 20px;
+    box-shadow: 0 4px 24px -2px rgba(0,0,0,0.06);
+    border-radius: 16px;
+    padding: 48px 40px 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    min-height: 140px;
+    min-height: 220px;
     box-sizing: border-box;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
@@ -1076,9 +1078,9 @@ body {
     height: 100%;
     background: var(--code-bg);
     border: 1px solid var(--code-border);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-    border-radius: 12px;
-    padding: 28px 24px 20px;
+    box-shadow: 0 4px 24px -2px rgba(0,0,0,0.06);
+    border-radius: 16px;
+    padding: 48px 40px 36px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1092,19 +1094,19 @@ body {
 
 .flashcard-face-label {
     font-family: 'SF Pro Text', -apple-system, sans-serif;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--text-tertiary);
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 
 .flashcard-content {
     font-family: 'SF Pro Display', -apple-system, sans-serif;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.5;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.4;
     color: var(--text);
     outline: none;
     cursor: default;
@@ -1115,6 +1117,7 @@ body {
     border-radius: 6px;
     transition: background 0.15s;
     width: 100%;
+    letter-spacing: -0.3px;
 }
 
 .flashcard-content[contenteditable="true"] {
@@ -1136,32 +1139,31 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: 8px 0 2px;
+    gap: 6px;
+    padding: 16px 0 2px;
     font-family: 'SF Pro Text', -apple-system, sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-tertiary);
-    opacity: 0.5;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    opacity: 0.6;
     transition: opacity 0.2s;
 }
 
 .flashcard-card:hover .flashcard-hint {
     opacity: 1;
-    color: var(--accent);
 }
 
 .flashcard-hint-icon {
-    font-size: 14px;
+    font-size: 16px;
 }
 
 /* Dark theme adjustments */
 [data-theme="dark"] .flashcard-front {
-    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 24px -2px rgba(0,0,0,0.25);
 }
 
 [data-theme="dark"] .flashcard-back {
-    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 24px -2px rgba(0,0,0,0.25);
 }
 
 [data-theme="dark"] .flashcard-content:focus {
@@ -1258,12 +1260,12 @@ body.focus-mode .ProseMirror > .has-focus {
 .bookmark-block {
     display: flex;
     margin: 1.5em 0;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
     border: 1px solid var(--border);
     background: var(--bg);
     cursor: pointer;
-    min-height: 100px;
+    min-height: 140px;
     transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 
@@ -1287,42 +1289,44 @@ body.focus-mode .ProseMirror > .has-focus {
 
 .bookmark-card-text {
     flex: 1;
-    padding: 16px 20px;
+    padding: 24px 28px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-width: 0;
-    gap: 6px;
+    gap: 8px;
 }
 
 .bookmark-meta {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
 .bookmark-favicon {
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
     object-fit: contain;
     flex-shrink: 0;
 }
 
 .bookmark-domain {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text-tertiary);
 }
 
 .bookmark-title {
-    font-family: var(--font-heading, -apple-system, BlinkMacSystemFont, sans-serif);
-    font-size: 15px;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 20px;
     font-weight: 700;
     color: var(--text);
     line-height: 1.3;
+    letter-spacing: -0.3px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -1335,9 +1339,9 @@ body.focus-mode .ProseMirror > .has-focus {
 }
 
 .bookmark-description {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-secondary);
-    line-height: 1.5;
+    line-height: 1.6;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -1345,18 +1349,21 @@ body.focus-mode .ProseMirror > .has-focus {
 }
 
 .bookmark-url {
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 600;
     color: var(--text-tertiary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
 }
 
 .bookmark-image {
-    width: 160px;
+    width: 220px;
     flex-shrink: 0;
     overflow: hidden;
+    margin: 12px 12px 12px 0;
+    border-radius: 12px;
 }
 
 .bookmark-image img {
@@ -1364,11 +1371,9 @@ body.focus-mode .ProseMirror > .has-focus {
     height: 100%;
     object-fit: cover;
     transition: filter 0.5s ease, transform 0.7s ease;
-    filter: grayscale(0.15);
 }
 
 .bookmark-block:hover .bookmark-image img {
-    filter: grayscale(0);
     transform: scale(1.03);
 }
 

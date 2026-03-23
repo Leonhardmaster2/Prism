@@ -40,6 +40,7 @@ final class AppState {
     var searchQuery: String = ""
     var isSearchFocused: Bool = false
     var showSettings: Bool = false
+    var showImporter: Bool = false
 
     var appearanceMode: AppearanceMode {
         didSet {

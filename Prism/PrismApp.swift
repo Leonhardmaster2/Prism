@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 @main
 struct PrismApp: App {
@@ -43,6 +44,16 @@ struct PrismApp: App {
                 #if os(macOS)
                 .frame(minWidth: 700, minHeight: 500)
                 #endif
+                .fileImporter(
+                    isPresented: Binding(
+                        get: { appState.showImporter },
+                        set: { appState.showImporter = $0 }
+                    ),
+                    allowedContentTypes: [.plainText],
+                    allowsMultipleSelection: true
+                ) { result in
+                    handleImport(result)
+                }
         }
         .modelContainer(sharedModelContainer)
         #if os(macOS)
@@ -50,6 +61,31 @@ struct PrismApp: App {
         #endif
         .commands {
             PrismCommands(appState: appState, modelContainer: sharedModelContainer)
+        }
+    }
+
+    private func handleImport(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            let context = ModelContext(sharedModelContainer)
+            let service = DocumentService(modelContext: context)
+            var lastImported: PrismDocument?
+            for url in urls {
+                guard url.startAccessingSecurityScopedResource() else { continue }
+                defer { url.stopAccessingSecurityScopedResource() }
+                do {
+                    let doc = try service.importMarkdown(from: url)
+                    lastImported = doc
+                    print("[PRISM] Imported: \(url.lastPathComponent)")
+                } catch {
+                    print("[PRISM] Import failed for \(url.lastPathComponent): \(error)")
+                }
+            }
+            if let doc = lastImported {
+                appState.selectedDocumentID = doc.id
+            }
+        case .failure(let error):
+            print("[PRISM] File picker error: \(error)")
         }
     }
 }
@@ -72,6 +108,11 @@ struct PrismCommands: Commands {
                 }
             }
             .keyboardShortcut("n", modifiers: .command)
+
+            Button("Import Markdown...") {
+                appState.showImporter = true
+            }
+            .keyboardShortcut("i", modifiers: [.command, .shift])
         }
 
         CommandGroup(after: .toolbar) {

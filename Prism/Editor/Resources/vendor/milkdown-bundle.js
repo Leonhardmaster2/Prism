@@ -34345,6 +34345,46 @@ var MilkdownEditor = (() => {
           }
         });
       });
+      var hexColorKey = new PluginKey("hexColorSwatch");
+      var hexColorPlugin = $prose(function() {
+        return new Plugin({
+          key: hexColorKey,
+          state: {
+            init: function(_, state) {
+              return buildHexDecorations(state.doc);
+            },
+            apply: function(tr, oldDecos) {
+              if (tr.docChanged) {
+                return buildHexDecorations(tr.doc);
+              }
+              return oldDecos;
+            }
+          },
+          props: {
+            decorations: function(state) {
+              return hexColorKey.getState(state);
+            }
+          }
+        });
+      });
+      function buildHexDecorations(doc4) {
+        var decos = [];
+        var hexRe = /#([0-9A-Fa-f]{6})\b/g;
+        doc4.descendants(function(node2, pos) {
+          if (!node2.isText) return;
+          var text5 = node2.text;
+          var m2;
+          hexRe.lastIndex = 0;
+          while ((m2 = hexRe.exec(text5)) !== null) {
+            var from2 = pos + m2.index;
+            var swatch = document.createElement("span");
+            swatch.className = "hex-color-swatch";
+            swatch.style.backgroundColor = m2[0];
+            decos.push(Decoration.widget(from2, swatch, { side: -1 }));
+          }
+        });
+        return DecorationSet.create(doc4, decos);
+      }
       var scrollTimeout;
       function setupScrollTracking() {
         window.addEventListener("scroll", function() {
@@ -36362,7 +36402,7 @@ var MilkdownEditor = (() => {
               scheduleContentChange(editor);
             }
           });
-        }).use(commonmark).use(gfmFiltered).use(b).use(history2).use(listener).use(unifiedPastePlugin).use(clipboard).use(trailing).use(indent2).use(stateChangePlugin).use(customKeymapPlugin).use(slashMenuPluginFixed).use(findBarPlugin).use(checkboxPlugin).use(mathNodeViewPlugin).use(youtubeVideoSchema).use(youtubeNodeViewPlugin).use(remarkFlashcard).use(flashcardSchema).use(flashcardNodeViewPlugin).use(remarkBookmark).use(bookmarkSchema).use(bookmarkNodeViewPlugin).create();
+        }).use(commonmark).use(gfmFiltered).use(b).use(history2).use(listener).use(unifiedPastePlugin).use(clipboard).use(trailing).use(indent2).use(stateChangePlugin).use(customKeymapPlugin).use(slashMenuPluginFixed).use(findBarPlugin).use(checkboxPlugin).use(mathNodeViewPlugin).use(youtubeVideoSchema).use(youtubeNodeViewPlugin).use(remarkFlashcard).use(flashcardSchema).use(flashcardNodeViewPlugin).use(remarkBookmark).use(bookmarkSchema).use(bookmarkNodeViewPlugin).use(hexColorPlugin).create();
         editorInstance = editor;
         setupScrollTracking();
         try {

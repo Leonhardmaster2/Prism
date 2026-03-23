@@ -867,6 +867,52 @@ var findBarPlugin = $prose(function() {
     });
 });
 
+// ─── Hex color swatch decorations ─────────────────────
+var hexColorKey = new PluginKey('hexColorSwatch');
+
+var hexColorPlugin = $prose(function() {
+    return new Plugin({
+        key: hexColorKey,
+        state: {
+            init: function(_, state) {
+                return buildHexDecorations(state.doc);
+            },
+            apply: function(tr, oldDecos) {
+                if (tr.docChanged) {
+                    return buildHexDecorations(tr.doc);
+                }
+                return oldDecos;
+            }
+        },
+        props: {
+            decorations: function(state) {
+                return hexColorKey.getState(state);
+            }
+        }
+    });
+});
+
+function buildHexDecorations(doc) {
+    var decos = [];
+    var hexRe = /#([0-9A-Fa-f]{6})\b/g;
+
+    doc.descendants(function(node, pos) {
+        if (!node.isText) return;
+        var text = node.text;
+        var m;
+        hexRe.lastIndex = 0;
+        while ((m = hexRe.exec(text)) !== null) {  // regex exec, not shell exec
+            var from = pos + m.index;
+            var swatch = document.createElement('span');
+            swatch.className = 'hex-color-swatch';
+            swatch.style.backgroundColor = m[0];
+            decos.push(Decoration.widget(from, swatch, { side: -1 }));
+        }
+    });
+
+    return DecorationSet.create(doc, decos);
+}
+
 // ─── Scroll tracking ──────────────────────────────────
 var scrollTimeout;
 function setupScrollTracking() {
@@ -3109,6 +3155,7 @@ async function initEditor() {
         .use(remarkBookmark)
         .use(bookmarkSchema)
         .use(bookmarkNodeViewPlugin)
+        .use(hexColorPlugin)
         .create();
 
     editorInstance = editor;
